@@ -1,9 +1,10 @@
-import AdminJS from "adminjs";
+import AdminJS, { Sidebar } from "adminjs";
 import AdminJSFastify from "@adminjs/fastify";
 import * as AdminJSMoongoose from '@adminjs/mongoose'
 import * as models from '../models/index.js'
 import { Store } from "@fastify/session";
 import { authenticate, COOKIE_PASSWORD, sessionStore } from "./config.js";
+import{dark, light, noSidebar} from '@adminjs/themes';
 
 AdminJS.registerAdapter(AdminJSMoongoose)
 
@@ -33,12 +34,21 @@ export const admin = new AdminJS({
                 {
                     resource:models.Branch,
                   
+                    },{
+                        resource:models.Category
+                    },{
+                        resource:models.Product
                     }
     ],
     branding:{
         companyName: "easykit",
         withMadeWithLove:false,
+        favicon:"https://i.pinimg.com/736x/54/89/10/5489102e76d782aa93ee0768906c1960.jpg",
+        
+      
     },
+    availableThemes:[dark, light, Sidebar],
+    defaultTheme: dark.id,
     rootPath:"/admin",
 });
 

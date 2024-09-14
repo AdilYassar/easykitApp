@@ -4,6 +4,7 @@ import ConnectMongoDBSession from 'connect-mongodb-session';
 import{Admin} from '../models/index.js';
 
 
+
 const MongoDBStore = ConnectMongoDBSession(fastifySession)
 
 export const sessionStore = new MongoDBStore({
@@ -16,12 +17,20 @@ sessionStore.on("error", (error)=>{
 })
 
 export const authenticate = async(email,password)=>{
-    if(email=='adilyassar9898@gmail.com' && password == 'adilyassar98A'){
-        return Promise.resolve({email:email, password:password})
-    }else{
-        return null;
+    if(email && password){
+        const user =  await Admin.findOne({email})
+        if(!user){
+            return null;
+        }
+        if(user.password === password){      
+                return Promise.resolve({email:email, password:password})
+        }else{
+            return null;
+        }
 
     }
+   
+    return null;
 }
 
 export const PORT = process.env.PORT || 3000;
