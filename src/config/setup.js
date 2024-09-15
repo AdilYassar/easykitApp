@@ -38,7 +38,12 @@ export const admin = new AdminJS({
                         resource:models.Category
                     },{
                         resource:models.Product
+                    },{
+                        resource:models.Order
+                    },{
+                        resource:models.Counter
                     }
+                
     ],
     branding:{
         companyName: "easykit",
@@ -51,6 +56,7 @@ export const admin = new AdminJS({
     defaultTheme: dark.id,
     rootPath:"/admin",
 });
+export const rootPath = "/admin";
 
 export const buildAdminRouter = async(app)=>{
     await AdminJSFastify.buildAuthenticatedRouter(

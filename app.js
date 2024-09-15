@@ -1,29 +1,37 @@
-//import Fastify from "fastify";
+// Import necessary modules
+import "dotenv/config"; // Ensure environment variables are loaded first
+import Fastify from "fastify";
 import { connectDB } from './src/config/connect.js';
-import "dotenv/config"; // Make sure this line is at the top to load environment variables
 import { buildAdminRouter } from "./src/config/setup.js";
-import Fastify from "fastify"
+import { registerRoutes } from './src/routes/index.js';
+import { authRoutes } from "./src/routes/auth.js";
+import { rootPath } from "./src/config/setup.js";
 
-const PORT = process.env.PORT || 3000; // Define PORT with fallback value
+// Define PORT with a fallback value
+const PORT = process.env.PORT || 3000;
 
 const start = async () => {
+  try {
     // Connect to the database
     await connectDB(process.env.MONGO_URI);
-
-    // Create Fastify instance
+    console.log("Connected to the database");
+    
+    // Create a Fastify instance
     const app = Fastify();
+    
+    // Register routes
+    await registerRoutes(app);
 
-    // Build admin router
+    // Build AdminJS router
     await buildAdminRouter(app);
-
-    try {
-        // Start the server
-        await app.listen({ port: PORT, host: "0.0.0.0" });
-        console.log(`easykit Started on ${PORT} ${app.options.rootPath}`);
-    } catch (err) {
-        console.error("Error starting the server:", err);
-        process.exit(1); // Exit the process if the server fails to start
-    }
+    
+    // Start the server
+    await app.listen({ port: PORT }); // Removed host option
+    console.log(`Server started on http://localhost:${PORT}`);
+  } catch (err) {
+    console.error("Error starting the server:", err);
+    process.exit(1); // Exit the process if the server fails to start
+  }
 };
 
 // Start the server
