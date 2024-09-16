@@ -6,33 +6,58 @@ import { buildAdminRouter } from "./src/config/setup.js";
 import { registerRoutes } from './src/routes/index.js';
 import { authRoutes } from "./src/routes/auth.js";
 import { rootPath } from "./src/config/setup.js";
+import fastifySocketIO from "fastify-socket.io";
 
-// Define PORT with a fallback value
+
 const PORT = process.env.PORT || 3000;
 
 const start = async () => {
   try {
-    // Connect to the database
+   
     await connectDB(process.env.MONGO_URI);
     console.log("Connected to the database");
     
-    // Create a Fastify instance
-    const app = Fastify();
     
-    // Register routes
+    const app = Fastify();
+  
+    app.register(fastifySocketIO, {
+      cors: {
+        origin: "*", 
+      },
+      pingInterval: 10000, 
+      pingTimeout: 5000, 
+      transports: ['websocket'],
+    });
+
+   
     await registerRoutes(app);
 
-    // Build AdminJS router
+
     await buildAdminRouter(app);
     
-    // Start the server
-    await app.listen({ port: PORT }); // Removed host option
+    
+    await app.listen({ port: PORT }); 
     console.log(`Server started on http://localhost:${PORT}`);
+
+    
+    app.ready().then(() => {
+      app.io.on("connection", (socket) => {
+        console.log("A user connected");
+
+  
+        socket.on("joinRoom", (orderId) => {
+          socket.join(orderId); 
+          console.log(`User joined room: ${orderId}`);
+        });
+
+        
+      });
+    });
   } catch (err) {
     console.error("Error starting the server:", err);
-    process.exit(1); // Exit the process if the server fails to start
+    process.exit(1); 
   }
 };
 
-// Start the server
+
 start();
