@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Counter from "./counter.js"; // Ensure this file exists and is correctly exporting the Counter model
 
+
 const orderSchema = new mongoose.Schema({
   orderID: {
     type: String,
