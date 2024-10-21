@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { verifyToken } from "../../middleware/auth.js";
 
 
-// Generate access and refresh tokens
+
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
     { userId: user._id, role: user.role },
@@ -13,23 +13,25 @@ const generateTokens = (user) => {
   const refreshToken = jwt.sign(
     { userId: user._id, role: user.role },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "7d" }  // Typically, refresh tokens have a longer expiry
+    { expiresIn: "7d" }  
   );
 
-  // Logging the accessToken for debugging purposes
+
   console.log(`Generated Access Token: ${accessToken}`);
+
 
   return { accessToken, refreshToken };
 };
 
-// Customer Login or Registration
+
 export const loginCustomer = async (req, reply) => {
   try {
     const { phone } = req.body;
     let customer = await Customer.findOne({ phone });
+    console.log(phone)
 
     if (!customer) {
-      // Create a new customer if none exists
+  
       customer = new Customer({
         phone,
         role: "Customer",
@@ -53,14 +55,17 @@ export const loginDeliveryPartner = async (req, reply) => {
   try {
     console.log('Request body:', req.body);
     const { email, password } = req.body;
+    console.log('email is:', email);
+
     const deliveryPartner = await DeliveryPartner.findOne({ email });
+    console.log(deliveryPartner);
 
     if (!deliveryPartner) {
       console.error('Delivery Partner not found');
       return reply.status(404).send({ message: "Delivery Partner not found" });
     }
 
-    // Check if the provided password matches
+
     const isMatch = password === deliveryPartner.password;
     if (!isMatch) {
       console.error('Invalid credentials');
@@ -141,4 +146,6 @@ export const fetchUser = async (req, reply) => {
     return reply.status(500).send({ message: "An error occurred", error });
   }
 };
+
+
 

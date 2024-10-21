@@ -44,13 +44,13 @@ export const createOrder = async (req, reply) => {
             branch,
             totalPrice,
             deliveryLocation: {
-                latitude: customerData.liveLocation.latitude,
-                longitude: customerData.liveLocation.longitude,
+               // latitude: customerData.liveLocation.latitude,
+               // longitude: customerData.liveLocation.longitude,
                 address: customerData.address || "No address found",
             },
             pickupLocation: {
-                latitude: branchData.location.latitude,
-                longitude: branchData.location.longitude,
+               // latitude: branchData.location.latitude,
+               // longitude: branchData.location.longitude,
                 address: branchData.address || "No address found",
             },
         });
@@ -181,11 +181,12 @@ export const getOrders = async (req, reply) => {
 
         const limit = parseInt(req.query.limit, 10) || 10;
         const page = parseInt(req.query.page, 10) || 1;
-
         const orders = await Order.find(query)
-            .populate("customer branch items.item deliveryPartner")
-            .skip((page - 1) * limit)
-            .limit(limit);
+        .populate({
+          path: 'items.item',
+          strictPopulate: false // Override strict populate
+        });
+      
 
         return reply.send(orders);
     } catch (error) {
@@ -194,19 +195,17 @@ export const getOrders = async (req, reply) => {
     }
 };
 
-// Get a single order by ID
 export const getOrderById = async (req, reply) => {
     try {
         const { orderId } = req.params;
 
         // Validate orderId
-        if (!isValidObjectId(orderId)) {
+        if (!mongoose.isValidObjectId(orderId)) {
             return reply.status(400).send({ message: "Invalid order ID" });
         }
 
-        const order = await Order.findById(orderId).populate(
-            "customer branch items.item deliveryPartner"
-        );
+        const order = await Order.findById(orderId)
+            .populate("customer branch items.item deliveryPartner", null, null, { strictPopulate: false });
 
         if (!order) {
             return reply.status(404).send({ message: "Order not found" });

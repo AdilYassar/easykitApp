@@ -30,13 +30,13 @@ const start = async () => {
     });
 
    
+   
     await registerRoutes(app);
-
 
     await buildAdminRouter(app);
     
     
-    await app.listen({ port: PORT }); 
+    await app.listen({ port: PORT, host:'0.0.0.0'}); 
     console.log(`Server started on http://localhost:${PORT}`);
 
     
